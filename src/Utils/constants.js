@@ -1,1 +1,1 @@
-export const logoLink="https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
+export const logoLink = "https://i.ibb.co/GffngZLF/Chat-GPT-Image-Aug-15-2025-07-25-19-PM.png";
