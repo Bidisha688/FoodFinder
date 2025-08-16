@@ -2,7 +2,7 @@
 import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
-
+import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Body from "./components/Body";
 import Error from "./components/Error";
@@ -19,6 +19,7 @@ const AppLayout = () => (
     <Suspense fallback={<Shimmer />}>
       <Outlet />
     </Suspense>
+    <Footer /> 
     <ScrollRestoration />
   </div>
 );

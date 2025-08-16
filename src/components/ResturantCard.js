@@ -1,67 +1,82 @@
-// RestaurantCard.jsx
-import React from "react";
+// src/components/RestaurantCard.js
+import useFormatINR from "../Utils/hooks/useFormatINR";
+import useRatingClass from "../Utils/hooks/useRatingClass";
+import useImageFallback from "../Utils/hooks/useImageFallback";
 
-function formatINR(value) {
-  if (!value && value !== 0) return null;
-  try {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `₹${value}`;
-  }
+const FALLBACK_IMG = "https://via.placeholder.com/600x400?text=No+Image";
+
+function parseStars(stars) {
+  if (stars == null) return null;
+  const n = typeof stars === "number" ? stars : Number(String(stars).trim());
+  return Number.isFinite(n) ? n : null;
 }
 
-function ratingClass(stars) {
-  const n = parseFloat(stars);
-  if (Number.isNaN(n)) return "rating-unknown";
-  if (n >= 4.5) return "rating-great";
-  if (n >= 4.0) return "rating-good";
-  if (n >= 3.0) return "rating-ok";
-  return "rating-low";
-}
-
-const RestaurantCard = ({
+export default function RestaurantCard({
   resName,
   cuisine,
   stars,
-  delTime,
-  costForTwo,
+  delTime,        // e.g. "20–25 mins"
+  distance,       // ← NEW: e.g. "3.2 km" (pass from parser)
+  costForTwo,     // string like "₹300 for two" (from parser)
+  costForTwoNum,  // number in rupees (from parser) – optional
   location,
   offers,
   image,
-}) => {
-  const costText = typeof costForTwo === "number" ? formatINR(costForTwo) : (costForTwo ? `₹${costForTwo}` : null);
-  const ratingCls = ratingClass(stars);
+}) {
+  // rating
+  const starsNum = parseStars(stars);
+  const ratingCls = useRatingClass(starsNum);
+  const starsDisplay =
+    starsNum == null
+      ? null
+      : Math.round(starsNum * 10) % 10 === 0
+      ? String(Math.round(starsNum))
+      : starsNum.toFixed(1);
+
+  // currency (called unconditionally)
+  const formattedINR = useFormatINR(
+    typeof costForTwoNum === "number" ? costForTwoNum : null
+  );
+
+  // final cost label: prefer ready string, else build from number
+  const costLabel =
+    (typeof costForTwo === "string" && costForTwo.trim()) ||
+    (formattedINR ? `${formattedINR} for two` : null);
+
+  const { imgSrc, handleError } = useImageFallback(image, FALLBACK_IMG);
+
+  // Build meta items with clean dot separators
+  const metaItems = [];
+  if (delTime) metaItems.push(delTime);
+  if (distance) metaItems.push(distance);
+  if (costLabel) metaItems.push(costLabel);
 
   return (
     <article className="res-card" role="article" aria-label={resName || "Restaurant"}>
-      {/* Media */}
+      {/* Image */}
       <div className="res-media">
         <img
           className="res-img"
-          src={image}
+          src={imgSrc}
           alt={resName ? `${resName} cover` : "Restaurant cover"}
           loading="lazy"
           decoding="async"
-          onError={(e) => {
-            e.currentTarget.src = "https://via.placeholder.com/600x400?text=No+Image";
-          }}
+          onError={handleError}
         />
-        {offers ? (
-          <span className="res-offer" aria-label={`Offer: ${offers}`}>
-            {offers}
-          </span>
-        ) : null}
-        <span className={`res-rating ${ratingCls}`} aria-label={`Rating ${stars || "not available"}`}>
-          {stars ? `★ ${stars}` : "★ N/A"}
-        </span>
       </div>
 
-      {/* Info */}
+      {/* Body */}
       <div className="res-body">
+        {/* Rating & offer chips BELOW the image */}
+        <div className="res-meta-top">
+          {starsDisplay != null && (
+            <span className={`res-rating ${ratingCls}`} aria-label={`Rating ${starsDisplay}`}>
+              ★ {starsDisplay}
+            </span>
+          )}
+          {offers ? <span className="res-offer">{offers}</span> : null}
+        </div>
+
         <h3 className="res-title" title={resName || ""}>
           {resName || "Unnamed Restaurant"}
         </h3>
@@ -70,24 +85,29 @@ const RestaurantCard = ({
           {cuisine || "Cuisine N/A"}
         </p>
 
-        {/* Meta row */}
         <div className="res-meta" aria-label="Meta info">
-          <span>{delTime || "—"}</span>
-          <span className="dot" aria-hidden="true" />
-          <span>{costText ? `${costText} for two` : "Cost N/A"}</span>
+          {metaItems.length ? (
+            metaItems.map((text, i) => (
+              <span key={i} className="meta-item">
+                {text}
+                {i < metaItems.length - 1 && (
+                  <span className="dot" aria-hidden="true" />
+                )}
+              </span>
+            ))
+          ) : (
+            <span>—</span>
+          )}
         </div>
 
         <p className="res-loc" title={location || ""}>
           {location || "Location N/A"}
         </p>
 
-        {/* CTA hint (the whole card is wrapped by a Link in parent) */}
         <div className="res-cta" aria-hidden="true">
           View menu →
         </div>
       </div>
     </article>
   );
-};
-
-export default RestaurantCard;
+}
