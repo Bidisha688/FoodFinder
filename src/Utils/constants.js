@@ -5,7 +5,7 @@ export const logoLink =
   "https://i.ibb.co/GffngZLF/Chat-GPT-Image-Aug-15-2025-07-25-19-PM.png";
 
 // Default Map Center
-export const DEFAULT_CENTER = { lat: 20.1541, lng: 85.7087 };
+export const DEFAULT_CENTER =  { lat: 22.643667, lng: 88.454556 };
 
 // Base URL for Swiggy API
 // 👉 If you use a proxy (like in dev with Vite/CRA), swap SWIGGY_BASE to "/api/swiggy"

@@ -1,26 +1,26 @@
-// App.jsx (or App.js)
+// App.jsx
 import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import Body from "./components/Body";
-import Error from "./components/Error";
 import Shimmer from "./components/Shimmer";
 
-// Lazy-load non-critical pages
+// Lazy-load all components
+const Header = lazy(() => import("./components/Header"));
+const Footer = lazy(() => import("./components/Footer"));
+const Body = lazy(() => import("./components/Body"));
+const Error = lazy(() => import("./components/Error"));
 const About = lazy(() => import("./components/About"));
 const Contact = lazy(() => import("./components/Contact"));
 const RestaurantMenu = lazy(() => import("./components/RestaurantMenu"));
 
 const AppLayout = () => (
   <div className="app">
-    <Header />
     <Suspense fallback={<Shimmer />}>
+      <Header />
       <Outlet />
+      <Footer />
+      <ScrollRestoration />
     </Suspense>
-    <Footer /> 
-    <ScrollRestoration />
   </div>
 );
 
@@ -28,12 +28,16 @@ const appRouter = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
-    errorElement: <Error />,
+    errorElement: (
+      <Suspense fallback={<Shimmer />}>
+        <Error />
+      </Suspense>
+    ),
     children: [
-      { index: true, element: <Body /> },                 // "/"
-      { path: "about", element: <About /> },
-      { path: "contact", element: <Contact /> },
-      { path: "restaurant/:id", element: <RestaurantMenu /> }, // "/restaurant/:id"
+      { index: true, element: <Suspense fallback={<Shimmer />}><Body /></Suspense> },
+      { path: "about", element: <Suspense fallback={<Shimmer />}><About /></Suspense> },
+      { path: "contact", element: <Suspense fallback={<Shimmer />}><Contact /></Suspense> },
+      { path: "restaurant/:id", element: <Suspense fallback={<Shimmer />}><RestaurantMenu /></Suspense> },
     ],
   },
 ]);
