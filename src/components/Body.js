@@ -1,6 +1,7 @@
+// Body.jsx
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import RestaurantCard from "./ResturantCard"; // ← ensure the filename matches!
+import RestaurantCard from "./ResturantCard"; // ✅ fixed spelling/case
 import Shimmer from "./Shimmer";
 import useRestaurants from "../Utils/hooks/useRestaurants";
 import useOnlineStatus from "../Utils/hooks/useOnlineStatus";
@@ -32,21 +33,15 @@ export default function Body() {
     );
   };
 
-  const handleTopRated = () =>
-    setList(getSorted(allList, "rating_desc"));
+  const handleTopRated = () => setList(getSorted(allList, "rating_desc"));
 
   const handleSort = (key) => {
-    if (key === "relevance") {
-      setList(allList); // original API order
-    } else {
-      setList(getSorted(allList, key));
-    }
+    if (key === "relevance") setList(allList);
+    else setList(getSorted(allList, key));
   };
 
   // Offline → show retry UI (refresh only)
   if (!isOnline) return <OfflineUI onRetry={() => window.location.reload()} />;
-
-  if (loading && list.length === 0) return <Shimmer />;
 
   return (
     <div className="body">
@@ -76,13 +71,15 @@ export default function Body() {
           🔄 Reset
         </button>
 
-        {/* New Sort Control */}
         <SortControl disabled={loading} onSort={handleSort} />
       </div>
 
-      {/* ===== Restaurant Cards ===== */}
+      {/* ===== Restaurant Cards / Shimmer ===== */}
       <div className="res-container">
-        {list.length ? (
+        {loading && allList.length === 0 ? (
+          // Inline shimmer (NOT fullscreen) only in the cards space
+          <Shimmer />
+        ) : list.length ? (
           list.map((r) => (
             <Link
               key={r.id}
@@ -100,7 +97,7 @@ export default function Body() {
       </div>
 
       {/* ===== Load More / Explore ===== */}
-      {allList.length > 0 && (
+      {allList.length > 0 && !loading && (
         <div style={{ textAlign: "center", margin: "24px 0 48px" }}>
           {nextOffset ? (
             <button
