@@ -1,4 +1,3 @@
-// src/components/RestaurantCard.js
 import useFormatINR from "../Utils/hooks/useFormatINR";
 import useRatingClass from "../Utils/hooks/useRatingClass";
 import useImageFallback from "../Utils/hooks/useImageFallback";
@@ -15,15 +14,14 @@ export default function RestaurantCard({
   resName,
   cuisine,
   stars,
-  delTime,        // e.g. "20–25 mins"
-  distance,       // ← NEW: e.g. "3.2 km" (pass from parser)
-  costForTwo,     // string like "₹300 for two" (from parser)
-  costForTwoNum,  // number in rupees (from parser) – optional
+  delTime,
+  distance,
+  costForTwo,
+  costForTwoNum,
   location,
   offers,
   image,
 }) {
-  // rating
   const starsNum = parseStars(stars);
   const ratingCls = useRatingClass(starsNum);
   const starsDisplay =
@@ -33,66 +31,69 @@ export default function RestaurantCard({
       ? String(Math.round(starsNum))
       : starsNum.toFixed(1);
 
-  // currency (called unconditionally)
   const formattedINR = useFormatINR(
     typeof costForTwoNum === "number" ? costForTwoNum : null
   );
 
-  // final cost label: prefer ready string, else build from number
   const costLabel =
     (typeof costForTwo === "string" && costForTwo.trim()) ||
     (formattedINR ? `${formattedINR} for two` : null);
 
   const { imgSrc, handleError } = useImageFallback(image, FALLBACK_IMG);
 
-  // Build meta items with clean dot separators
   const metaItems = [];
   if (delTime) metaItems.push(delTime);
   if (distance) metaItems.push(distance);
   if (costLabel) metaItems.push(costLabel);
 
   return (
-    <article className="res-card" role="article" aria-label={resName || "Restaurant"}>
+    <article className="rounded-2xl ring-1 ring-black/5 shadow-sm bg-white dark:bg-zinc-900 overflow-hidden group">
       {/* Image */}
-      <div className="res-media">
+      <div className="relative aspect-[16/9]">
         <img
-          className="res-img"
+          className="h-full w-full object-cover"
           src={imgSrc}
           alt={resName ? `${resName} cover` : "Restaurant cover"}
           loading="lazy"
           decoding="async"
           onError={handleError}
         />
+        {offers ? (
+          <span className="absolute bottom-2 left-2 inline-flex items-center rounded-xl bg-indigo-600/90 px-2.5 py-1 text-xs font-medium text-white shadow">
+            {offers}
+          </span>
+        ) : null}
       </div>
 
       {/* Body */}
-      <div className="res-body">
-        {/* Rating & offer chips BELOW the image */}
-        <div className="res-meta-top">
-          {starsDisplay != null && (
-            <span className={`res-rating ${ratingCls}`} aria-label={`Rating ${starsDisplay}`}>
-              ★ {starsDisplay}
-            </span>
-          )}
-          {offers ? <span className="res-offer">{offers}</span> : null}
-        </div>
+      <div className="p-4">
+        {/* Rating chip */}
+        {starsDisplay != null && (
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset mb-2 ${
+            ratingCls === "good"
+              ? "bg-green-50 text-green-700 ring-green-200"
+              : ratingCls === "ok"
+              ? "bg-amber-50 text-amber-700 ring-amber-200"
+              : "bg-red-50 text-red-700 ring-red-200"
+          }`} aria-label={`Rating ${starsDisplay}`}>
+            ★ {starsDisplay}
+          </span>
+        )}
 
-        <h3 className="res-title" title={resName || ""}>
+        <h3 className="text-lg font-semibold tracking-tight line-clamp-1" title={resName || ""}>
           {resName || "Unnamed Restaurant"}
         </h3>
 
-        <p className="res-cuisine" title={cuisine || ""}>
+        <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-300 line-clamp-1" title={cuisine || ""}>
           {cuisine || "Cuisine N/A"}
         </p>
 
-        <div className="res-meta" aria-label="Meta info">
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-700 dark:text-zinc-200" aria-label="Meta info">
           {metaItems.length ? (
             metaItems.map((text, i) => (
-              <span key={i} className="meta-item">
+              <span key={i} className="inline-flex items-center">
                 {text}
-                {i < metaItems.length - 1 && (
-                  <span className="dot" aria-hidden="true" />
-                )}
+                {i < metaItems.length - 1 && <span className="mx-2 h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600" aria-hidden="true" />}
               </span>
             ))
           ) : (
@@ -100,11 +101,11 @@ export default function RestaurantCard({
           )}
         </div>
 
-        <p className="res-loc" title={location || ""}>
+        <p className="mt-2 text-xs text-zinc-500 line-clamp-1" title={location || ""}>
           {location || "Location N/A"}
         </p>
 
-        <div className="res-cta" aria-hidden="true">
+        <div className="mt-3 text-sm font-medium text-indigo-600 group-hover:translate-x-1 transition-transform" aria-hidden="true">
           View menu →
         </div>
       </div>

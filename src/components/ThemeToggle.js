@@ -3,48 +3,32 @@ import React, { useEffect, useState } from "react";
 const STORAGE_KEY = "theme"; // "light" | "dark"
 
 export default function ThemeToggle() {
+  // Start in light; we’ll sync from localStorage on mount.
   const [theme, setTheme] = useState("light");
 
-  // Set theme from storage or system preference
-  useEffect(function () {
-    var stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "light" || stored === "dark") {
-      setTheme(stored);
-      document.documentElement.setAttribute("data-theme", stored);
-    } else {
-      var prefersDark = window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var initial = prefersDark ? "dark" : "light";
-      setTheme(initial);
-      document.documentElement.setAttribute("data-theme", initial);
-    }
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const initial = stored === "dark" ? "dark" : "light"; // default = light
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
   }, []);
 
   function toggleTheme() {
-    var next = theme === "dark" ? "light" : "dark";
+    const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
     localStorage.setItem(STORAGE_KEY, next);
   }
 
-  return React.createElement(
-    "button",
-    {
-      onClick: toggleTheme,
-      "aria-label": "Switch to " + (theme === "dark" ? "light" : "dark") + " mode",
-      style: {
-        border: "1px solid var(--border)",
-        background: "var(--surface)",
-        color: "var(--text)",
-        padding: "8px 10px",
-        borderRadius: 10,
-        fontSize: 13,
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        cursor: "pointer"
-      }
-    },
-    theme === "dark" ? "🌙 Dark" : "🌞 Light"
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+    >
+      {theme === "dark" ? "🌙 Dark" : "🌞 Light"}
+    </button>
   );
 }
