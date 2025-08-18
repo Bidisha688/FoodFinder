@@ -1,12 +1,16 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import RestaurantCard from "./ResturantCard"; // keep path as-is
+import withPromotedLabel from "./withPromotedLabel"; // <-- NEW HOC import
 import Shimmer from "./Shimmer";
 import useRestaurants from "../Utils/hooks/useRestaurants";
 import useOnlineStatus from "../Utils/hooks/useOnlineStatus";
 import OfflineUI from "./OfflineUI";
 import SortControl from "./SortControl";
 import { getSorted } from "../Utils/sorters";
+
+// HOC enhanced component
+const RestaurantCardWithLabel = withPromotedLabel(RestaurantCard);
 
 export default function Body() {
   const isOnline = useOnlineStatus();
@@ -43,7 +47,10 @@ export default function Body() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       {error && (
-        <div role="alert" className="mb-3 rounded-xl bg-red-50 text-red-700 ring-1 ring-red-200 px-4 py-2 text-sm">
+        <div
+          role="alert"
+          className="mb-3 rounded-xl bg-red-50 text-red-700 ring-1 ring-red-200 px-4 py-2 text-sm"
+        >
           {error}
         </div>
       )}
@@ -94,7 +101,11 @@ export default function Body() {
               to={`/restaurant/${r.id}`}
               className="group block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-2xl"
             >
-              <RestaurantCard {...r} />
+              {r.promoted ? (
+                <RestaurantCardWithLabel {...r} />
+              ) : (
+                <RestaurantCard {...r} />
+              )}
             </Link>
           ))
         ) : (
