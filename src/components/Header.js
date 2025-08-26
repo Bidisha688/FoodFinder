@@ -23,7 +23,13 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <Link to="/" aria-label="Home" onClick={closeMenu} className="flex items-center gap-2">
+          <Link
+            to="/"
+            aria-label="Home"
+            onClick={closeMenu}
+            className="flex items-center gap-2"
+            data-testid="brand-link"
+          >
             <img className="h-8 w-8 rounded-lg ring-1 ring-black/5" src={logoLink} alt="App logo" />
             <span className="text-lg font-bold tracking-tight">
               Food<span className="text-indigo-600">Finder</span>
@@ -37,6 +43,7 @@ export default function Header() {
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
           onClick={toggleMenu}
+          data-testid="mobile-toggle"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -44,13 +51,19 @@ export default function Header() {
         </button>
 
         {/* Nav + Actions */}
-        <nav className={`fixed inset-x-0 top-16 lg:static lg:inset-auto lg:top-auto ${menuOpen ? "block" : "hidden lg:block"}`} aria-label="Main navigation">
+        <nav
+          className={`fixed inset-x-0 top-16 lg:static lg:inset-auto lg:top-auto ${
+            menuOpen ? "block" : "hidden lg:block"
+          }`}
+          aria-label="Main navigation"
+          data-testid="main-nav"
+        >
           <div className="lg:flex lg:items-center lg:gap-6 bg-white dark:bg-zinc-900 lg:bg-transparent lg:dark:bg-transparent px-4 lg:px-0 pb-4 lg:pb-0 border-b lg:border-0 border-zinc-200 dark:border-zinc-800">
             <ul className="flex flex-col lg:flex-row gap-2 lg:gap-1 py-3 lg:py-0">
               <li><NavLink to="/" onClick={closeMenu} className={navLink}>Home</NavLink></li>
               <li><NavLink to="/about" onClick={closeMenu} className={navLink}>About</NavLink></li>
               <li><NavLink to="/contact" onClick={closeMenu} className={navLink}>Contact</NavLink></li>
-              <li onClick={closeMenu}><CartBadge /></li>
+              <li onClick={closeMenu} data-testid="cart-link"><CartBadge /></li>
             </ul>
 
             <div className="flex items-center gap-3 py-3 lg:py-0">
@@ -59,6 +72,7 @@ export default function Header() {
               <button
                 className="inline-flex items-center rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
                 onClick={toggleAuth}
+                data-testid="auth-button"
               >
                 {authLabel}
               </button>
