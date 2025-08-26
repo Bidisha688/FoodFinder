@@ -5,6 +5,7 @@ import ThemeToggle from "./ThemeToggle";
 import useAuthLabel from "../Utils/hooks/useAuthLabel";
 import useMenuToggle from "../Utils/hooks/useMenuToggle";
 import StatusButton from "./StatusButton";
+import CartBadge from "./CartBadge";
 
 export default function Header() {
   const { authLabel, toggleAuth } = useAuthLabel();
@@ -24,7 +25,9 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <Link to="/" aria-label="Home" onClick={closeMenu} className="flex items-center gap-2">
             <img className="h-8 w-8 rounded-lg ring-1 ring-black/5" src={logoLink} alt="App logo" />
-            <span className="text-lg font-bold tracking-tight">Food<span className="text-indigo-600">Finder</span></span>
+            <span className="text-lg font-bold tracking-tight">
+              Food<span className="text-indigo-600">Finder</span>
+            </span>
           </Link>
         </div>
 
@@ -47,13 +50,16 @@ export default function Header() {
               <li><NavLink to="/" onClick={closeMenu} className={navLink}>Home</NavLink></li>
               <li><NavLink to="/about" onClick={closeMenu} className={navLink}>About</NavLink></li>
               <li><NavLink to="/contact" onClick={closeMenu} className={navLink}>Contact</NavLink></li>
-              <li><NavLink to="/cart" onClick={closeMenu} className={navLink}>Cart</NavLink></li>
+              <li onClick={closeMenu}><CartBadge /></li>
             </ul>
 
             <div className="flex items-center gap-3 py-3 lg:py-0">
               <StatusButton />
               <ThemeToggle />
-              <button className="inline-flex items-center rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500" onClick={toggleAuth}>
+              <button
+                className="inline-flex items-center rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
+                onClick={toggleAuth}
+              >
                 {authLabel}
               </button>
             </div>

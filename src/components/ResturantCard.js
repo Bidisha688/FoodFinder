@@ -1,3 +1,4 @@
+import React from "react";
 import useFormatINR from "../Utils/hooks/useFormatINR";
 import useRatingClass from "../Utils/hooks/useRatingClass";
 import useImageFallback from "../Utils/hooks/useImageFallback";
@@ -11,6 +12,7 @@ function parseStars(stars) {
 }
 
 export default function RestaurantCard({
+  id,             // kept for routing to /restaurant/:id (View menu)
   resName,
   cuisine,
   stars,
@@ -69,13 +71,16 @@ export default function RestaurantCard({
       <div className="p-4">
         {/* Rating chip */}
         {starsDisplay != null && (
-          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset mb-2 ${
-            ratingCls === "good"
-              ? "bg-green-50 text-green-700 ring-green-200"
-              : ratingCls === "ok"
-              ? "bg-amber-50 text-amber-700 ring-amber-200"
-              : "bg-red-50 text-red-700 ring-red-200"
-          }`} aria-label={`Rating ${starsDisplay}`}>
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset mb-2 ${
+              ratingCls === "good"
+                ? "bg-green-50 text-green-700 ring-green-200"
+                : ratingCls === "ok"
+                ? "bg-amber-50 text-amber-700 ring-amber-200"
+                : "bg-red-50 text-red-700 ring-red-200"
+            }`}
+            aria-label={`Rating ${starsDisplay}`}
+          >
             ★ {starsDisplay}
           </span>
         )}
@@ -88,12 +93,17 @@ export default function RestaurantCard({
           {cuisine || "Cuisine N/A"}
         </p>
 
-        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-700 dark:text-zinc-200" aria-label="Meta info">
+        <div
+          className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-700 dark:text-zinc-200"
+          aria-label="Meta info"
+        >
           {metaItems.length ? (
             metaItems.map((text, i) => (
               <span key={i} className="inline-flex items-center">
                 {text}
-                {i < metaItems.length - 1 && <span className="mx-2 h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600" aria-hidden="true" />}
+                {i < metaItems.length - 1 && (
+                  <span className="mx-2 h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600" aria-hidden="true" />
+                )}
               </span>
             ))
           ) : (

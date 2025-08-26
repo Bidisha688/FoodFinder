@@ -1,4 +1,3 @@
-// src/components/Cart.jsx
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -76,7 +75,16 @@ export default function Cart() {
                 <span className="min-w-[2ch] text-center">{it.qty || 1}</span>
                 <button
                   className="h-8 w-8 grid place-items-center rounded-lg ring-1 ring-zinc-200 dark:ring-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                  onClick={() => dispatch(addItem({ id: it.id, name: it.name, price: it.price, image: it.image }))}
+                  onClick={() =>
+                    dispatch(
+                      addItem({
+                        id: it.id,
+                        name: it.name,
+                        price: it.price,
+                        image: it.image,
+                      })
+                    )
+                  }
                   aria-label="Increase quantity"
                 >
                   +

@@ -1,17 +1,44 @@
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useDispatch } from "react-redux";
 import Shimmer from "./Shimmer";
 import useRestaurantMenu from "../Utils/hooks/useRestaurantMenu";
 import AccordionMenu from "./AccordionMenu";
+import { addItem } from "../Utils/cartSlice";
 
 export default function RestaurantMenu() {
   const { id } = useParams();
   const { loading, header, categories, error } = useRestaurantMenu(id);
 
+  const dispatch = useDispatch();
+
   // parent-controlled open index
   const [openIndex, setOpenIndex] = useState(null);
   const handleToggle = (idx) => {
     setOpenIndex((prev) => (prev === idx ? null : idx));
+  };
+
+  // Centralized handler used by AccordionMenu for each item Add click
+  const handleAddToCart = (item) => {
+    if (!item) return;
+    const safeId =
+      item.id || item.itemId || item.uuid || `${id}_${item.name || "item"}`;
+    const price =
+      typeof item.price === "number"
+        ? item.price
+        : typeof item.defaultPrice === "number"
+        ? item.defaultPrice
+        : typeof item.finalPrice === "number"
+        ? item.finalPrice
+        : 100; // sensible fallback
+    dispatch(
+      addItem({
+        id: String(safeId),
+        name: item.name || "Menu Item",
+        price,
+        image: item.image || item.img || item.imageId || header?.image || "",
+      })
+    );
   };
 
   if (loading) return <Shimmer count={8} />;
@@ -69,6 +96,7 @@ export default function RestaurantMenu() {
           categories={categories}
           openIndex={openIndex}
           onToggle={handleToggle}
+          onAdd={handleAddToCart}   // <-- pass add-to-cart handler to each item row
         />
       ) : (
         <p className="mt-6 text-sm text-zinc-500">No items found.</p>
