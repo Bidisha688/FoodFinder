@@ -1,50 +1,59 @@
+// src/__tests__/Header.test.jsx
 import React from "react";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Header from "../src/components/Header";
+import Header from "../components/Header";
 
 // --- Mocks ----------------------------------------------------------
+// NOTE: all paths are relative to src/__tests__/ (so no "../src/...")
 
-jest.mock("../src/Utils/hooks/useAuthLabel", () => {
+jest.mock("../Utils/hooks/useAuthLabel", () => {
   const mockToggleAuth = jest.fn();
   return {
     __esModule: true,
     default: () => ({ authLabel: "Login", toggleAuth: mockToggleAuth }),
-    mockToggleAuth,
+    mockToggleAuth, // we’ll import this below
   };
 });
 
-jest.mock("../src/Utils/hooks/useMenuToggle", () => {
+jest.mock("../Utils/hooks/useMenuToggle", () => {
   const mockToggleMenu = jest.fn();
   const mockCloseMenu = jest.fn();
   return {
     __esModule: true,
-    default: () => ({ menuOpen: false, toggleMenu: mockToggleMenu, closeMenu: mockCloseMenu }),
+    default: () => ({
+      menuOpen: false,
+      toggleMenu: mockToggleMenu,
+      closeMenu: mockCloseMenu,
+    }),
     mockToggleMenu,
-    mockCloseMenu,
+    mockCloseMenu, // we’ll import these below
   };
 });
 
-jest.mock("../src/components/CartBadge", () => ({
+jest.mock("../components/CartBadge", () => ({
   __esModule: true,
   default: () => <button data-testid="cart-badge">Cart</button>,
 }));
-jest.mock("../src/components/ThemeToggle", () => ({
+
+jest.mock("../components/ThemeToggle", () => ({
   __esModule: true,
   default: () => <div data-testid="theme-toggle" />,
 }));
-jest.mock("../src/components/StatusButton", () => ({
+
+jest.mock("../components/StatusButton", () => ({
   __esModule: true,
   default: () => <div data-testid="status-button" />,
 }));
 
-jest.mock("../src/Utils/constants", () => ({
+jest.mock("../Utils/constants", () => ({
   __esModule: true,
   logoLink: "logo.png",
 }));
 
-const { mockToggleAuth } = require("../src/Utils/hooks/useAuthLabel");
-const { mockToggleMenu, mockCloseMenu } = require("../src/Utils/hooks/useMenuToggle");
+// pull the mock fns from the mocked modules above
+const { mockToggleAuth } = require("../Utils/hooks/useAuthLabel");
+const { mockToggleMenu, mockCloseMenu } = require("../Utils/hooks/useMenuToggle");
 
 const renderHeader = () =>
   render(
@@ -72,13 +81,13 @@ describe("<Header />", () => {
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute("src", "logo.png");
 
-    // Scope link checks to the <nav> to avoid the brand "Home" link
+    // Scope link checks to the <nav> to avoid the brand 'Home' link
     const nav = screen.getByTestId("main-nav");
-    const navQueries = within(nav);
+    const navQ = within(nav);
 
-    expect(navQueries.getByRole("link", { name: /^home$/i })).toBeInTheDocument();
-    expect(navQueries.getByRole("link", { name: /^about$/i })).toBeInTheDocument();
-    expect(navQueries.getByRole("link", { name: /^contact$/i })).toBeInTheDocument();
+    expect(navQ.getByRole("link", { name: /^home$/i })).toBeInTheDocument();
+    expect(navQ.getByRole("link", { name: /^about$/i })).toBeInTheDocument();
+    expect(navQ.getByRole("link", { name: /^contact$/i })).toBeInTheDocument();
 
     // Cart + Actions
     expect(screen.getByTestId("cart-badge")).toBeInTheDocument();

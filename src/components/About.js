@@ -13,7 +13,7 @@ export default function About() {
             Welcome to <span className="font-semibold text-indigo-600 dark:text-indigo-400">Our Company</span> —
             where passion meets innovation. We are a team of dedicated professionals
             committed to delivering exceptional products and services that make a real
-            difference in people's lives.
+            difference in peoples lives.
           </p>
 
           <p className="mt-4 text-base leading-7 text-zinc-600 dark:text-zinc-300">

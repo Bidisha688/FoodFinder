@@ -1,47 +1,33 @@
-import { useRef } from "react";
 import { Link } from "react-router-dom";
-import RestaurantCard from "./ResturantCard";
+import RestaurantCard from "./RestaurantCard";
 import Shimmer from "./Shimmer";
 import useRestaurants from "../Utils/hooks/useRestaurants";
 import useOnlineStatus from "../Utils/hooks/useOnlineStatus";
 import OfflineUI from "./OfflineUI";
 import SortControl from "./SortControl";
 import { getSorted } from "../Utils/sorters";
-import withOfferBadge from "./withOfferBadge"; // ✅ only offer HOC
+import withOfferBadge from "./withOfferBadge";
+import SearchBar from "./SearchBar";
+import FilterButtons from "./FilterButtons";
 
 const CardWithOffer = withOfferBadge(RestaurantCard);
 
 export default function Body() {
   const isOnline = useOnlineStatus();
-  const {
-    list,
-    allList,
-    loading,
-    loadingMore,
-    nextOffset,
-    loadMoreNearby,
-    setList,
-    error,
-  } = useRestaurants();
+  const { list, allList, loading, loadingMore, nextOffset, loadMoreNearby, setList, error } =
+    useRestaurants();
 
-  const searchRef = useRef();
-
-  const handleSearch = () => {
-    const query = (searchRef.current?.value || "").trim().toLowerCase();
+  const handleSearch = (query) => {
     if (!query) return setList(allList);
-    setList(
-      allList.filter((r) =>
-        (r.resName || "").toLowerCase().includes(query)
-      )
-    );
+    setList(allList.filter((r) => (r.resName || "").toLowerCase().includes(query)));
   };
 
   const handleTopRated = () => setList(getSorted(allList, "rating_desc"));
+  const handleReset = () => setList(allList);
   const handleSort = (key) =>
     setList(key === "relevance" ? allList : getSorted(allList, key));
 
-  if (!isOnline)
-    return <OfflineUI onRetry={() => window.location.reload()} />;
+  if (!isOnline) return <OfflineUI onRetry={() => window.location.reload()} />;
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -56,36 +42,12 @@ export default function Body() {
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
-        <input
-          ref={searchRef}
-          type="text"
-          placeholder="Search restaurants..."
-          className="block w-full sm:w-80 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm shadow-sm placeholder:text-zinc-400 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        <SearchBar onSearch={handleSearch} disabled={loading} />
+        <FilterButtons
+          onTopRated={handleTopRated}
+          onReset={handleReset}
           disabled={loading}
         />
-        <button
-          onClick={handleSearch}
-          disabled={loading}
-          className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60"
-        >
-          Search
-        </button>
-        <button
-          onClick={handleTopRated}
-          disabled={loading}
-          className="inline-flex items-center rounded-xl bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-100 ring-1 ring-zinc-200 dark:ring-zinc-700 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60"
-        >
-          ⭐ Top Rated
-        </button>
-        <button
-          onClick={() => setList(allList)}
-          disabled={loading}
-          className="inline-flex items-center rounded-xl bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-100 ring-1 ring-zinc-200 dark:ring-zinc-700 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60"
-        >
-          🔄 Reset
-        </button>
-
         <SortControl disabled={loading} onSort={handleSort} />
       </div>
 
@@ -108,16 +70,16 @@ export default function Body() {
             🚫 No restaurants found. Try adjusting filters or search again.
           </p>
         )}
-
         {loadingMore && !loading && <Shimmer count={4} />}
       </div>
 
-      {/* Load More / Explore */}
+      {/* Load More */}
       {allList.length > 0 && !loading && (
         <div className="text-center my-6">
           {nextOffset ? (
             <button
-              className="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60"
+              className="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm 
+                         font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60"
               onClick={loadMoreNearby}
               disabled={loadingMore || !isOnline}
               aria-disabled={loadingMore || !isOnline}
@@ -127,7 +89,9 @@ export default function Body() {
           ) : (
             <>
               <button
-                className="inline-flex items-center rounded-xl bg-white dark:bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-900 dark:text-zinc-100 ring-1 ring-zinc-200 dark:ring-zinc-700 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60"
+                className="inline-flex items-center rounded-xl bg-white dark:bg-zinc-900 px-5 py-2.5 text-sm 
+                           font-medium text-zinc-900 dark:text-zinc-100 ring-1 ring-zinc-200 dark:ring-zinc-700 
+                           shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60"
                 onClick={loadMoreNearby}
                 disabled={loadingMore || !isOnline}
                 aria-disabled={loadingMore || !isOnline}

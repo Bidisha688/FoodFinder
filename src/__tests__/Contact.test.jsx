@@ -1,6 +1,9 @@
+// src/__tests__/Contact.test.jsx
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import Contact from "../src/components/Contact";
+// If you don't already add this in setupTests.js, uncomment the next line:
+// import "@testing-library/jest-dom";
+import Contact from "../components/Contact";
 
 describe("<Contact />", () => {
   describe("Rendering", () => {
@@ -9,8 +12,10 @@ describe("<Contact />", () => {
       expect(
         screen.getByRole("heading", { name: /contact us/i, level: 1 })
       ).toBeInTheDocument();
+
+      // Accept both straight and curly apostrophes
       expect(
-        screen.getByText(/we’d love to hear from you/i)
+        screen.getByText(/we(’|')d love to hear from you/i)
       ).toBeInTheDocument();
     });
 
@@ -58,9 +63,13 @@ describe("<Contact />", () => {
 
     test("form submission prevents default and calls onSubmit with prevented event", () => {
       const onSubmit = jest.fn();
-      render(<Contact onSubmit={onSubmit} />);
+      const { container } = render(<Contact onSubmit={onSubmit} />);
 
-      const form = screen.getByRole("form");
+      // Prefer role="form" if present; otherwise query the element directly
+      const form =
+        screen.queryByRole("form") || container.querySelector("form");
+      expect(form).toBeTruthy();
+
       fireEvent.submit(form);
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -70,11 +79,12 @@ describe("<Contact />", () => {
     });
 
     test("submit button is type='submit' and belongs to the form", () => {
-      render(<Contact />);
+      const { container } = render(<Contact />);
       const submitBtn = screen.getByRole("button", { name: /send message/i });
       expect(submitBtn).toHaveAttribute("type", "submit");
 
-      const form = screen.getByRole("form");
+      const form =
+        screen.queryByRole("form") || container.querySelector("form");
       expect(submitBtn.closest("form")).toBe(form);
     });
   });

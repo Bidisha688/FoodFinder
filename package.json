@@ -5,7 +5,8 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html",
-    "test": "jest"
+    "test": "jest",
+    "watch-test": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,8 @@
     "@testing-library/user-event": "^14.6.1",
     "autoprefixer": "^10.4.21",
     "babel-jest": "^30.0.5",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "parcel": "2.15.4",
@@ -42,7 +45,8 @@
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-redux": "^9.2.0",
-    "react-router-dom": "6.22.3"
+    "react-router-dom": "6.22.3",
+    "react-scripts": "^5.0.1"
   },
   "overrides": {
     "react": "19.1.1",
