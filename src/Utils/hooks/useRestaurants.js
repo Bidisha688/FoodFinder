@@ -1,13 +1,14 @@
-// src/Utils/hooks/useRestaurants.js
 import { useCallback, useEffect, useRef, useState } from "react";
 import useOnlineStatus from "./useOnlineStatus";
 import useGeoCenter from "./useGeoCenter";
-import parseRestaurants from "../parseRestaurantMenu"; // ✅ FIX: correct parser for list page
+import parseRestaurants from "../parseRestaurantMenu";
 import { fetchRestaurants, getNextOffset } from "../swiggyClient";
+
+const isNum = (v) => Number.isFinite(v);
 
 export default function useRestaurants() {
   const isOnline = useOnlineStatus();
-  const center = useGeoCenter(isOnline);
+  const center = useGeoCenter(isOnline); // may be {lat: undefined, lng: undefined} initially
 
   const [list, setList] = useState([]);
   const [allList, setAllList] = useState([]);
@@ -21,7 +22,6 @@ export default function useRestaurants() {
   const dir = useRef(0);
   const fetchCtrl = useRef(null);
 
-  // pagination tracking to avoid loops / stale first click
   const prevOffsetRef = useRef(null);
   const nextOffsetRef = useRef(null);
   useEffect(() => { nextOffsetRef.current = nextOffset; }, [nextOffset]);
@@ -29,13 +29,15 @@ export default function useRestaurants() {
   const actuallyOnline = () => isOnline && navigator.onLine;
   const abortInFlight = () => { try { fetchCtrl.current?.abort(); } catch {} fetchCtrl.current = null; };
 
-  // returns count of NEW items appended
   const load = useCallback(
     async ({ lat, lng, offset = null, more = false } = {}) => {
       if (!actuallyOnline()) { setError("You are offline"); return 0; }
 
-      const useLat = typeof lat === "number" ? lat : center.lat;
-      const useLng = typeof lng === "number" ? lng : center.lng;
+      const useLat = isNum(lat) ? lat : center.lat;
+      const useLng = isNum(lng) ? lng : center.lng;
+
+      // 🔒 Don’t fire until coordinates are ready
+      if (!isNum(useLat) || !isNum(useLng)) return 0;
 
       more ? setLoadingMore(true) : setLoading(true);
       setError(null);
@@ -51,8 +53,8 @@ export default function useRestaurants() {
           signal: fetchCtrl.current.signal,
         });
 
-        const parsed = Array.isArray(parseRestaurants(json)) ? parseRestaurants(json) : [];
-        const batch = parsed.filter((x) => {
+        const parsedArr = Array.isArray(parseRestaurants(json)) ? parseRestaurants(json) : [];
+        const batch = parsedArr.filter((x) => {
           if (!x?.id) return false;
           if (seenIds.current.has(x.id)) return false;
           seenIds.current.add(x.id);
@@ -67,7 +69,6 @@ export default function useRestaurants() {
           setList(batch);
         }
 
-        // Robust nextOffset handling + sync ref update
         const incoming =
           getNextOffset(json) ??
           json?.data?.pageParams?.nextOffset ??
@@ -81,14 +82,12 @@ export default function useRestaurants() {
           nextOffsetRef.current = null;
         } else {
           setNextOffset(normalized);
-          nextOffsetRef.current = normalized; // keep ref in sync for immediate next click
+          nextOffsetRef.current = normalized;
         }
 
         return batch.length;
       } catch (e) {
         if (e?.name !== "AbortError" && navigator.onLine) {
-          // Avoid Parcel dev overlay for handled errors
-          // eslint-disable-next-line no-console
           console.warn("[restaurants] fetch failed:", e?.message || e);
         }
         if (e?.name !== "AbortError") {
@@ -105,6 +104,8 @@ export default function useRestaurants() {
 
   const expandAndLoad = useCallback(async () => {
     if (!actuallyOnline()) { setError("You are offline"); return 0; }
+    if (!isNum(center.lat) || !isNum(center.lng)) return 0;
+
     if (++dir.current > 3) { dir.current = 0; ring.current += 1; }
     const step = 0.06 * ring.current;
     const d = [
@@ -113,13 +114,14 @@ export default function useRestaurants() {
       { dx: 0, dy: +step },
       { dx: 0, dy: -step },
     ][dir.current];
+
     return load({ lat: center.lat + d.dy, lng: center.lng + d.dx, more: true });
   }, [center.lat, center.lng, load]);
 
-  // One-click loader with fallback (page → expand), skips while initial load is busy
   const loadMoreNearby = useCallback(async () => {
-    if (loading || loadingMore) return;      // don’t race initial load
+    if (loading || loadingMore) return;
     if (!actuallyOnline()) { setError("You are offline"); return; }
+    if (!isNum(center.lat) || !isNum(center.lng)) return;
 
     let attempts = 0;
     let added = 0;
@@ -146,9 +148,9 @@ export default function useRestaurants() {
         added += (await expandAndLoad()) || 0;
       }
     }
-  }, [expandAndLoad, load, loading, loadingMore, isOnline]);
+  }, [expandAndLoad, load, loading, loadingMore, isOnline, center.lat, center.lng]);
 
-  // Initial / online transition
+  // Initial / on-line transition
   useEffect(() => {
     if (!actuallyOnline()) {
       setError("You are offline");
@@ -156,8 +158,16 @@ export default function useRestaurants() {
       setLoading(false);
       return;
     }
+
+    // 🧭 Wait for geo center; keep shimmer on
+    if (!isNum(center.lat) || !isNum(center.lng)) {
+      setLoading(true);
+      return;
+    }
+
     seenIds.current.clear();
     load({ lat: center.lat, lng: center.lng, more: false });
+
     return abortInFlight;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline, center.lat, center.lng]);

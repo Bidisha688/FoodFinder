@@ -21,7 +21,7 @@ export default function RestaurantCard({
   costForTwo,
   costForTwoNum,
   location,
-  offers,
+  // offers,      // ← offer ribbon removed here; handled by withOfferBadge HOC
   image,
 }) {
   const starsNum = parseStars(stars);
@@ -60,11 +60,7 @@ export default function RestaurantCard({
           decoding="async"
           onError={handleError}
         />
-        {offers ? (
-          <span className="absolute bottom-2 left-2 inline-flex items-center rounded-xl bg-indigo-600/90 px-2.5 py-1 text-xs font-medium text-white shadow">
-            {offers}
-          </span>
-        ) : null}
+        {/* Offer badge removed; use withOfferBadge HOC to overlay */}
       </div>
 
       {/* Body */}
@@ -102,7 +98,10 @@ export default function RestaurantCard({
               <span key={i} className="inline-flex items-center">
                 {text}
                 {i < metaItems.length - 1 && (
-                  <span className="mx-2 h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600" aria-hidden="true" />
+                  <span
+                    className="mx-2 h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600"
+                    aria-hidden="true"
+                  />
                 )}
               </span>
             ))

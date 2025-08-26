@@ -1,16 +1,15 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import RestaurantCard from "./ResturantCard"; // keep path as-is
-import withPromotedLabel from "./withPromotedLabel"; // <-- NEW HOC import
+import RestaurantCard from "./ResturantCard";
 import Shimmer from "./Shimmer";
 import useRestaurants from "../Utils/hooks/useRestaurants";
 import useOnlineStatus from "../Utils/hooks/useOnlineStatus";
 import OfflineUI from "./OfflineUI";
 import SortControl from "./SortControl";
 import { getSorted } from "../Utils/sorters";
+import withOfferBadge from "./withOfferBadge"; // ✅ only offer HOC
 
-// HOC enhanced component
-const RestaurantCardWithLabel = withPromotedLabel(RestaurantCard);
+const CardWithOffer = withOfferBadge(RestaurantCard);
 
 export default function Body() {
   const isOnline = useOnlineStatus();
@@ -31,18 +30,18 @@ export default function Body() {
     const query = (searchRef.current?.value || "").trim().toLowerCase();
     if (!query) return setList(allList);
     setList(
-      allList.filter((r) => (r.resName || "").toLowerCase().includes(query))
+      allList.filter((r) =>
+        (r.resName || "").toLowerCase().includes(query)
+      )
     );
   };
 
   const handleTopRated = () => setList(getSorted(allList, "rating_desc"));
+  const handleSort = (key) =>
+    setList(key === "relevance" ? allList : getSorted(allList, key));
 
-  const handleSort = (key) => {
-    if (key === "relevance") setList(allList);
-    else setList(getSorted(allList, key));
-  };
-
-  if (!isOnline) return <OfflineUI onRetry={() => window.location.reload()} />;
+  if (!isOnline)
+    return <OfflineUI onRetry={() => window.location.reload()} />;
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -68,7 +67,7 @@ export default function Body() {
         <button
           onClick={handleSearch}
           disabled={loading}
-          className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+          className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60"
         >
           Search
         </button>
@@ -92,8 +91,8 @@ export default function Body() {
 
       {/* Cards / Shimmer */}
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {loading && allList.length === 0 ? (
-          <Shimmer />
+        {loading ? (
+          <Shimmer count={12} />
         ) : list.length ? (
           list.map((r) => (
             <Link
@@ -101,11 +100,7 @@ export default function Body() {
               to={`/restaurant/${r.id}`}
               className="group block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-2xl"
             >
-              {r.promoted ? (
-                <RestaurantCardWithLabel {...r} />
-              ) : (
-                <RestaurantCard {...r} />
-              )}
+              <CardWithOffer {...r} />
             </Link>
           ))
         ) : (
@@ -113,6 +108,8 @@ export default function Body() {
             🚫 No restaurants found. Try adjusting filters or search again.
           </p>
         )}
+
+        {loadingMore && !loading && <Shimmer count={4} />}
       </div>
 
       {/* Load More / Explore */}
@@ -120,7 +117,7 @@ export default function Body() {
         <div className="text-center my-6">
           {nextOffset ? (
             <button
-              className="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+              className="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60"
               onClick={loadMoreNearby}
               disabled={loadingMore || !isOnline}
               aria-disabled={loadingMore || !isOnline}
