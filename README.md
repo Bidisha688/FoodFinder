@@ -1,9 +1,21 @@
 # 🍴 Food Finder  
 
-A modern **food discovery web application** built with **React**, **Tailwind CSS**, **Redux Toolkit**, and **Swiggy’s Live API**. This project demonstrates my ability to build production-ready frontend applications from scratch, covering **state management, API integration, UI/UX design, and testing**.  
+A modern **food discovery web application** built with **React**, **Tailwind CSS**, **Redux Toolkit**, and **Swiggy’s Live API**.  
+This project showcases my ability to build **production-ready frontend applications** from scratch, focusing on:  
 
-🚀 **Live Demo:** [Food Finder on Vercel](https://food-finder-omega.vercel.app/)  
-⚠️ *Note:* Since the app fetches live Swiggy API data, you’ll need to enable a [CORS browser extension](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=en) to run it properly.  
+- 🔹 **State Management** with Redux Toolkit  
+- 🔹 **API Integration** with live data  
+- 🔹 **UI/UX Design** using Tailwind CSS  
+- 🔹 **Testing & Deployment** with Jest and Vercel  
+
+---
+
+## 🌐 Live Demo  
+
+🚀 [**Food Finder on Vercel**](https://food-finder-omega.vercel.app/)  
+
+⚠️ *Note:* Swiggy’s live API does not allow cross-origin requests (CORS).  
+To test locally or on Vercel, please install a [CORS-unblocker browser extension](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=en).  
 
 ---
 
@@ -13,29 +25,29 @@ A modern **food discovery web application** built with **React**, **Tailwind CSS
 ![Homepage](./assets/screenshots/home.png)  
 
 ### Cart  
-![Cart ](./assets/screenshots/cart.png)  
+![Cart](./assets/screenshots/cart.png)  
 
-### About 
+### About  
 ![About](./assets/screenshots/about.png)  
 
-### Contact 
-![Contact](./assets/screenshots/contact.png) 
+### Contact  
+![Contact](./assets/screenshots/contact.png)  
 
 ---
 
 ## ✨ Features  
 
-✅ **React Project Setup from Scratch** – Configured project without boilerplates.  
-✅ **Deep Dive into JSX & React Core Concepts** – Clean reusable components.  
-✅ **Tailwind CSS Integration** – Modern, responsive UI with utility-first styling.  
-✅ **React Hooks** – Implemented `useState`, `useEffect`, `useReducer`, `useContext`, and custom hooks.  
-✅ **React Router** – Client-side navigation for Home, About, Contact, Cart, and Restaurant pages.  
-✅ **Live API Integration** – Fetching real-time restaurant data from Swiggy APIs.  
-✅ **Redux & Redux Toolkit** – State management for authentication, cart, and filters.  
-✅ **Authentication Workflow** – Login/Logout button handled via Redux state.  
-✅ **Testing with Jest** – Unit and integration tests for core components.  
-✅ **Performance Optimizations** – Implemented lazy loading, code-splitting, and memoization.  
-✅ **Deployed on Vercel** – Production-ready hosting.  
+- ⚡ **From-Scratch Setup** – Configured without boilerplates  
+- 🧩 **Reusable Components** – Clean JSX & React best practices  
+- 🎨 **Tailwind CSS** – Modern, responsive UI with utility-first styling  
+- ⚛️ **React Hooks** – `useState`, `useEffect`, `useReducer`, `useContext`, custom hooks  
+- 🗺️ **React Router** – Client-side routing for pages (Home, About, Contact, Cart, Restaurant)  
+- 🔌 **Live API Integration** – Real-time restaurant data via Swiggy APIs  
+- 🛒 **Redux Toolkit** – Robust state management for authentication, cart, filters  
+- 🔐 **Authentication Workflow** – Login/Logout handled with Redux state  
+- 🧪 **Testing with Jest** – Unit & integration tests for core components  
+- 🚀 **Performance Optimizations** – Lazy loading, code-splitting, memoization  
+- ☁️ **Deployed on Vercel** – Production-grade hosting  
 
 ---
 
@@ -52,11 +64,7 @@ src/
  ┣ setupTests.js       # Jest setup
  ┗ index.html / css    # Entry point
 
-
----
-
----
-
+```
 ## ⚙️ Tech Stack  
 
 - **Frontend Framework:** React (Functional Components)  
@@ -79,7 +87,7 @@ The app includes **unit and integration tests** for components like:
 
 ---
 
-## 🚀 Getting Started  
+## 👉Getting Started  
 
 Follow these steps to run the project locally:  
 
@@ -89,21 +97,27 @@ Follow these steps to run the project locally:
 git clone https://github.com/your-username/food-finder.git
 cd food-finder
 npm install
-
-2️⃣ Run development server
+```
+### 2️⃣ Run development server
+```bash
 npm start
-
-3️⃣ Run tests
+```
+### 3️⃣ Run tests
+```bash
+Copy code
 npm test
-
-4️⃣ Build for production
+```
+### 4️⃣ Build for production
+```bash
+Copy code
 npm run build
+```
+### 👨‍💻 Developed By
+
+**©Arpon Roy**  
+
+🔗 [LinkedIn](https://www.linkedin.com/in/arpon-roy-b461321a8/)  
+🐙 [GitHub](https://github.com/ArponRoy7)  
 
 
-👨‍💻 Developed By
 
-Arpon Roy – Frontend Developer
-
-🔗 LinkedIn
-
-🐙 GitHub
