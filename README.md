@@ -55,6 +55,8 @@ src/
 
 ---
 
+---
+
 ## ⚙️ Tech Stack  
 
 - **Frontend Framework:** React (Functional Components)  
@@ -74,6 +76,8 @@ The app includes **unit and integration tests** for components like:
 - `Header`  
 - `SearchBar`  
 - `RestaurantCard`  
+
+---
 
 ## 🚀 Getting Started  
 
