@@ -14,6 +14,7 @@ const About = lazy(() => import("./components/About"));
 const Contact = lazy(() => import("./components/Contact"));
 const RestaurantMenu = lazy(() => import("./components/RestaurantMenu"));
 const Cart = lazy(() => import("./components/Cart"));
+const AuthModal = lazy(() => import("./components/AuthModal")); // ← added
 
 const AppLayout = () => (
   <div className="app">
@@ -21,6 +22,7 @@ const AppLayout = () => (
       <Header />
       <Outlet />
       <Footer />
+      <AuthModal /> {/* ← added: signup/signin modal is globally available */}
       <ScrollRestoration />
     </Suspense>
   </div>

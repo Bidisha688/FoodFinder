@@ -2,13 +2,12 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { logoLink } from "../Utils/constants";
 import ThemeToggle from "./ThemeToggle";
-import useAuthLabel from "../Utils/hooks/useAuthLabel";
 import useMenuToggle from "../Utils/hooks/useMenuToggle";
 import StatusButton from "./StatusButton";
 import CartBadge from "./CartBadge";
+import AuthButton from "./AuthButton";
 
 export default function Header() {
-  const { authLabel, toggleAuth } = useAuthLabel();
   const { menuOpen, toggleMenu, closeMenu } = useMenuToggle();
 
   const navLink = ({ isActive }) =>
@@ -69,13 +68,7 @@ export default function Header() {
             <div className="flex items-center gap-3 py-3 lg:py-0">
               <StatusButton />
               <ThemeToggle />
-              <button
-                className="inline-flex items-center rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
-                onClick={toggleAuth}
-                data-testid="auth-button"
-              >
-                {authLabel}
-              </button>
+              <AuthButton />
             </div>
           </div>
         </nav>
