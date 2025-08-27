@@ -1,19 +1,13 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addItem,
-  decrementQty,
-  removeItemById,
-  clearCart,
-  selectCartTotal,
-} from "../Utils/cartSlice";
-import { Link } from "react-router-dom";
+import { addItem, decrementQty, removeItemById, clearCart, selectCartTotal } from "../Utils/cartSlice";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Cart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const items = useSelector((state) => state.cart.items);
   const total = useSelector(selectCartTotal);
-
   const hasItems = items.length > 0;
 
   return (
@@ -32,9 +26,7 @@ export default function Cart() {
 
       {!hasItems ? (
         <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
-          <p className="text-zinc-700 dark:text-zinc-300 mb-4">
-            Your cart is empty.
-          </p>
+          <p className="text-zinc-700 dark:text-zinc-300 mb-4">Your cart is empty.</p>
           <Link
             to="/"
             className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
@@ -44,73 +36,93 @@ export default function Cart() {
         </div>
       ) : (
         <div className="grid gap-6">
-          {items.map((it) => (
-            <div
-              key={it.id}
-              className="flex items-center gap-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4"
-            >
-              <img
-                src={it.image}
-                alt={it.name}
-                className="h-16 w-16 rounded-xl object-cover ring-1 ring-black/5"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold truncate">{it.name}</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  ₹{Number(it.price || 0).toFixed(2)}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  className="h-8 w-8 grid place-items-center rounded-lg ring-1 ring-zinc-200 dark:ring-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                  onClick={() => dispatch(decrementQty(it.id))}
-                  aria-label="Decrease quantity"
-                >
-                  −
-                </button>
-                <span className="min-w-[2ch] text-center">{it.qty || 1}</span>
-                <button
-                  className="h-8 w-8 grid place-items-center rounded-lg ring-1 ring-zinc-200 dark:ring-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                  onClick={() =>
-                    dispatch(
-                      addItem({
-                        id: it.id,
-                        name: it.name,
-                        price: it.price,
-                        image: it.image,
-                      })
-                    )
-                  }
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
-
-              <button
-                className="ml-2 inline-flex items-center rounded-xl px-3 py-1.5 text-sm font-medium
-                           bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                onClick={() => dispatch(removeItemById(it.id))}
+          {items.map((it) => {
+            const imageUrl = it.image && it.image.trim() ? it.image : null; // <-- avoid empty string
+            return (
+              <div
+                key={it.id}
+                className="flex items-center gap-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4"
               >
-                Remove
-              </button>
-            </div>
-          ))}
+                {/* Safe image render with fallback */}
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={it.name || "Dish image"}
+                    className="h-16 w-16 rounded-xl object-cover ring-1 ring-black/5"
+                    onError={(e) => {
+                      // if the URL is broken, replace with a fallback chip
+                      const fallback = document.createElement("div");
+                      fallback.className =
+                        "h-16 w-16 rounded-xl bg-zinc-100 dark:bg-zinc-800 grid place-items-center text-zinc-500 text-lg";
+                      fallback.textContent = "🍽️";
+                      e.currentTarget.replaceWith(fallback);
+                    }}
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-xl bg-zinc-100 dark:bg-zinc-800 grid place-items-center text-zinc-500 text-lg">
+                    🍽️
+                  </div>
+                )}
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold truncate">{it.name}</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    ₹{Number(it.price || 0).toFixed(2)}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    className="h-8 w-8 grid place-items-center rounded-lg ring-1 ring-zinc-200 dark:ring-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                    onClick={() => dispatch(decrementQty(it.id))}
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <span className="min-w-[2ch] text-center">{it.qty || 1}</span>
+                  <button
+                    className="h-8 w-8 grid place-items-center rounded-lg ring-1 ring-zinc-200 dark:ring-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                    onClick={() =>
+                      dispatch(
+                        addItem({
+                          id: it.id,
+                          name: it.name,
+                          price: it.price,
+                          image: it.image, // OK if undefined/null; we guard above
+                        })
+                      )
+                    }
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <button
+                  className="ml-2 inline-flex items-center rounded-xl px-3 py-1.5 text-sm font-medium bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                  onClick={() => dispatch(removeItemById(it.id))}
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
 
           <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-800 pt-4">
             <span className="text-lg font-semibold">Total</span>
             <span className="text-lg font-bold">₹{total.toFixed(2)}</span>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <button
-              className="inline-flex items-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5
-                         text-sm font-semibold text-white shadow-sm hover:from-indigo-500 hover:to-violet-500"
-              onClick={() => alert("Checkout coming soon!")}
+              onClick={() => navigate("/")}
+              className="rounded-2xl border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            >
+              Continue Shopping
+            </button>
+            <button
+              className="inline-flex items-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:from-indigo-500 hover:to-violet-500"
+              onClick={() => navigate("/checkout")}
             >
               Checkout
             </button>

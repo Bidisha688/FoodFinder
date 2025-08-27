@@ -1,11 +1,16 @@
 import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  ScrollRestoration,
+} from "react-router-dom";
 import Shimmer from "./components/Shimmer";
 import { Provider } from "react-redux";
 import appStore from "./Utils/appStore";
 
-// Lazy-load all components
+// Lazy-load components/pages
 const Header = lazy(() => import("./components/Header"));
 const Footer = lazy(() => import("./components/Footer"));
 const Body = lazy(() => import("./components/Body"));
@@ -15,7 +20,10 @@ const Contact = lazy(() => import("./components/Contact"));
 const RestaurantMenu = lazy(() => import("./components/RestaurantMenu"));
 const Cart = lazy(() => import("./components/Cart"));
 const AuthModal = lazy(() => import("./components/AuthModal"));
-const ThankYou = lazy(() => import("./components/ThankYou")); // ← NEW
+
+// NEW pages (you can place them in /pages or /components—adjust paths accordingly)
+const Checkout = lazy(() => import("./pages/Checkout"));      // ← NEW
+const ThankYou = lazy(() => import("./pages/ThankYou"));      // ← NEW (with :id param)
 
 const AppLayout = () => (
   <div className="app">
@@ -23,7 +31,8 @@ const AppLayout = () => (
       <Header />
       <Outlet />
       <Footer />
-      <AuthModal /> {/* signup/signin modal is globally available */}
+      {/* global auth modal */}
+      <AuthModal />
       <ScrollRestoration />
     </Suspense>
   </div>
@@ -39,12 +48,58 @@ const appRouter = createBrowserRouter([
       </Suspense>
     ),
     children: [
-      { index: true, element: <Suspense fallback={<Shimmer />}><Body /></Suspense> },
-      { path: "about", element: <Suspense fallback={<Shimmer />}><About /></Suspense> },
-      { path: "contact", element: <Suspense fallback={<Shimmer />}><Contact /></Suspense> },
-      { path: "restaurant/:id", element: <Suspense fallback={<Shimmer />}><RestaurantMenu /></Suspense> },
-      { path: "cart", element: <Suspense fallback={<Shimmer />}><Cart /></Suspense> },
-      { path: "thank-you", element: <Suspense fallback={<Shimmer />}><ThankYou /></Suspense> }, // ← NEW
+      {
+        index: true,
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <Body />
+          </Suspense>,
+      },
+      {
+        path: "about",
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <About />
+          </Suspense>,
+      },
+      {
+        path: "contact",
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <Contact />
+          </Suspense>,
+      },
+      {
+        path: "restaurant/:id",
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <RestaurantMenu />
+          </Suspense>,
+      },
+      {
+        path: "cart",
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <Cart />
+          </Suspense>,
+      },
+
+      /* ---------- NEW ROUTES ---------- */
+      {
+        path: "checkout",
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <Checkout />
+          </Suspense>,
+      },
+      {
+        path: "thank-you/:id",
+        element:
+          <Suspense fallback={<Shimmer />}>
+            <ThankYou />
+          </Suspense>,
+      },
+      /* -------------------------------- */
     ],
   },
 ]);
