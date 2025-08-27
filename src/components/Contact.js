@@ -1,12 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Contact({ onSubmit }) {
+  const navigate = useNavigate();
+
   const handleSubmit = (e) => {
-    e.preventDefault();                 // prevent page reload
+    e.preventDefault();
     if (typeof onSubmit === "function") {
-      onSubmit(e);                      // expose the (already prevented) event to tests / parent
+      onSubmit(e);
     }
-    // You can add side-effects here later (toast, API call, etc.)
+    // Redirect to thank you page
+    navigate("/thank-you");
   };
 
   return (

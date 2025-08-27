@@ -14,7 +14,8 @@ const About = lazy(() => import("./components/About"));
 const Contact = lazy(() => import("./components/Contact"));
 const RestaurantMenu = lazy(() => import("./components/RestaurantMenu"));
 const Cart = lazy(() => import("./components/Cart"));
-const AuthModal = lazy(() => import("./components/AuthModal")); // ← added
+const AuthModal = lazy(() => import("./components/AuthModal"));
+const ThankYou = lazy(() => import("./components/ThankYou")); // ← NEW
 
 const AppLayout = () => (
   <div className="app">
@@ -22,7 +23,7 @@ const AppLayout = () => (
       <Header />
       <Outlet />
       <Footer />
-      <AuthModal /> {/* ← added: signup/signin modal is globally available */}
+      <AuthModal /> {/* signup/signin modal is globally available */}
       <ScrollRestoration />
     </Suspense>
   </div>
@@ -43,6 +44,7 @@ const appRouter = createBrowserRouter([
       { path: "contact", element: <Suspense fallback={<Shimmer />}><Contact /></Suspense> },
       { path: "restaurant/:id", element: <Suspense fallback={<Shimmer />}><RestaurantMenu /></Suspense> },
       { path: "cart", element: <Suspense fallback={<Shimmer />}><Cart /></Suspense> },
+      { path: "thank-you", element: <Suspense fallback={<Shimmer />}><ThankYou /></Suspense> }, // ← NEW
     ],
   },
 ]);
