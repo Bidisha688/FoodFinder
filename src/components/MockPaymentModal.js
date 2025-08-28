@@ -9,7 +9,8 @@ export default function MockPaymentModal({ open, onClose, onSuccess }) {
   if (!open) return null;
 
   const validCard = /^\d{16}$/.test(card.replace(/\s/g, ""));
-  const validUpi = /^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(upi);
+  const validUpi = /^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upi);
+
   const nameOk = name.trim().length >= 3;
 
   const canPay =

@@ -24,20 +24,48 @@ export default function useRestaurants() {
 
   const prevOffsetRef = useRef(null);
   const nextOffsetRef = useRef(null);
-  useEffect(() => { nextOffsetRef.current = nextOffset; }, [nextOffset]);
+  useEffect(() => {
+    nextOffsetRef.current = nextOffset;
+  }, [nextOffset]);
 
   const actuallyOnline = () => isOnline && navigator.onLine;
-  const abortInFlight = () => { try { fetchCtrl.current?.abort(); } catch {} fetchCtrl.current = null; };
+
+  const abortInFlight = () => {
+    try {
+      fetchCtrl.current?.abort();
+    } catch (err) {
+      console.error("Abort failed:", err);
+    }
+    fetchCtrl.current = null;
+  };
 
   const load = useCallback(
     async ({ lat, lng, offset = null, more = false } = {}) => {
-      if (!actuallyOnline()) { setError("You are offline"); return 0; }
+      if (!actuallyOnline()) {
+        setError("You are offline");
+        return 0;
+      }
 
-      const useLat = isNum(lat) ? lat : center.lat;
-      const useLng = isNum(lng) ? lng : center.lng;
+      let useLat = isNum(lat) ? lat : center.lat;
+      let useLng = isNum(lng) ? lng : center.lng;
 
-      // 🔒 Don’t fire until coordinates are ready
-      if (!isNum(useLat) || !isNum(useLng)) return 0;
+      // 🔒 Fallback: try navigator.geolocation if center is not ready
+      if (!isNum(useLat) || !isNum(useLng)) {
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+            });
+          });
+          useLat = pos.coords.latitude;
+          useLng = pos.coords.longitude;
+        } catch (geoErr) {
+          console.error("Geolocation error:", geoErr);
+          setError("Unable to access location. Please enable location services.");
+          return 0;
+        }
+      }
 
       more ? setLoadingMore(true) : setLoading(true);
       setError(null);
@@ -53,7 +81,10 @@ export default function useRestaurants() {
           signal: fetchCtrl.current.signal,
         });
 
-        const parsedArr = Array.isArray(parseRestaurants(json)) ? parseRestaurants(json) : [];
+        const parsedArr = Array.isArray(parseRestaurants(json))
+          ? parseRestaurants(json)
+          : [];
+
         const batch = parsedArr.filter((x) => {
           if (!x?.id) return false;
           if (seenIds.current.has(x.id)) return false;
@@ -91,7 +122,11 @@ export default function useRestaurants() {
           console.warn("[restaurants] fetch failed:", e?.message || e);
         }
         if (e?.name !== "AbortError") {
-          setError(navigator.onLine ? (e.message || "Failed to load restaurants") : "You are offline");
+          setError(
+            navigator.onLine
+              ? e.message || "Failed to load restaurants"
+              : "You are offline"
+          );
         }
         return 0;
       } finally {
@@ -103,10 +138,16 @@ export default function useRestaurants() {
   );
 
   const expandAndLoad = useCallback(async () => {
-    if (!actuallyOnline()) { setError("You are offline"); return 0; }
+    if (!actuallyOnline()) {
+      setError("You are offline");
+      return 0;
+    }
     if (!isNum(center.lat) || !isNum(center.lng)) return 0;
 
-    if (++dir.current > 3) { dir.current = 0; ring.current += 1; }
+    if (++dir.current > 3) {
+      dir.current = 0;
+      ring.current += 1;
+    }
     const step = 0.06 * ring.current;
     const d = [
       { dx: +step, dy: 0 },
@@ -115,12 +156,19 @@ export default function useRestaurants() {
       { dx: 0, dy: -step },
     ][dir.current];
 
-    return load({ lat: center.lat + d.dy, lng: center.lng + d.dx, more: true });
+    return load({
+      lat: center.lat + d.dy,
+      lng: center.lng + d.dx,
+      more: true,
+    });
   }, [center.lat, center.lng, load]);
 
   const loadMoreNearby = useCallback(async () => {
     if (loading || loadingMore) return;
-    if (!actuallyOnline()) { setError("You are offline"); return; }
+    if (!actuallyOnline()) {
+      setError("You are offline");
+      return;
+    }
     if (!isNum(center.lat) || !isNum(center.lng)) return;
 
     let attempts = 0;
@@ -136,7 +184,10 @@ export default function useRestaurants() {
         }
         prevOffsetRef.current = nextOffsetRef.current;
 
-        const pageAdded = await load({ offset: nextOffsetRef.current, more: true });
+        const pageAdded = await load({
+          offset: nextOffsetRef.current,
+          more: true,
+        });
         added += pageAdded || 0;
 
         if (pageAdded === 0) {
@@ -148,7 +199,15 @@ export default function useRestaurants() {
         added += (await expandAndLoad()) || 0;
       }
     }
-  }, [expandAndLoad, load, loading, loadingMore, isOnline, center.lat, center.lng]);
+  }, [
+    expandAndLoad,
+    load,
+    loading,
+    loadingMore,
+    isOnline,
+    center.lat,
+    center.lng,
+  ]);
 
   // Initial / on-line transition
   useEffect(() => {
@@ -165,12 +224,13 @@ export default function useRestaurants() {
       return;
     }
 
+    console.log("[restaurants] geo center ready:", center.lat, center.lng);
+
     seenIds.current.clear();
     load({ lat: center.lat, lng: center.lng, more: false });
 
     return abortInFlight;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline, center.lat, center.lng]);
+  }, [isOnline, center.lat, center.lng, load]);
 
   return {
     list,
