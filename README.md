@@ -114,10 +114,8 @@ npm run build
 ```
 ### 👨‍💻 Developed By
 
-**©Arpon Roy**  
+**©Bidisha Saha**  
 
-🔗 [LinkedIn](https://www.linkedin.com/in/arpon-roy-b461321a8/)  
-🐙 [GitHub](https://github.com/ArponRoy7)  
 
 
 
